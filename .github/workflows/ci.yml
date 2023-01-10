@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/package.sh ./ ./dist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: dist
+  release:
+    name: Release
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: package
+      - id: get_tag
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          echo "::set-output name=tag::$TAG"
+      - uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ steps.get_tag.outputs.tag }}
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          draft: true
+          prerelease: false
+          files: tailscale-usg.tgz
