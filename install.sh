@@ -10,13 +10,13 @@ fi
 
 WORKDIR="$(mktemp -d || exit 1)"
 trap 'rm -rf ${WORKDIR}' EXIT
-TAILSCALE_TGZ="${WORKDIR}/tailscale.zip"
+TAILSCALE_TGZ="${WORKDIR}/tailscale.tgz"
 
 curl -sSLf --ipv4 -o "$TAILSCALE_TGZ" "$PACKAGE_URL"
 
-TAILSCALE_ROOT="/config/tailscale"
+PACKAGE_ROOT="/config"
+tar xzf "$TAILSCALE_TGZ" -C "$PACKAGE_ROOT"
 
-tar xzf "$TAILSCALE_TGZ" -d "$(dirname -- "${TAILSCALE_ROOT}")"
-
-"${TAILSCALE_ROOT}/manage.sh" install
-"${TAILSCALE_ROOT}/manage.sh" start
+TAILSCALE_ROOT="$PACKAGE_ROOT/tailscale"
+"$TAILSCALE_ROOT/manage.sh" install
+"$TAILSCALE_ROOT/manage.sh" start
