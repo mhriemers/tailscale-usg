@@ -35,7 +35,7 @@ jobs:
         run: |
           TAG=${GITHUB_REF#refs/tags/}
           echo "::set-output name=tag::$TAG"
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ steps.get_tag.outputs.tag }}
           tag_name: ${{ steps.get_tag.outputs.tag }}
